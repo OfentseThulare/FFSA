@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from './supabaseClient';
+import {
+  sanitize, sanitizeObject, isValidEmail, isValidPhone,
+  validateTeamForm, validatePlayerForm, validatePhoto,
+  PHOTO_MAX_SIZE_MB,
+} from './validation';
 
 const C = {
   green: "#00843d",
@@ -285,13 +290,18 @@ function TeamReg({ onSubmit }) {
     numPlayers: "", homeGround: "", notes: "", terms: false,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [teamDbId, setTeamDbId] = useState(null);
   const s = (k, v) => setF(p => ({ ...p, [k]: v }));
 
-  const submit = () => {
-    if (!f.teamName || !f.managerName || !f.managerEmail || !f.managerPhone) return alert("Please fill in all required fields.");
-    if (!f.terms) return alert("Please accept the terms and conditions.");
-    onSubmit({ ...f, id: Date.now(), status: "Pending Payment", date: new Date().toISOString() });
-    setSubmitted(true);
+  const submit = async () => {
+    const errors = validateTeamForm(f);
+    if (errors.length > 0) return alert(errors.join('\n'));
+    const sanitized = sanitizeObject(f);
+    const result = await onSubmit({ ...sanitized, status: "Pending Payment", date: new Date().toISOString() });
+    if (result?.id) {
+      setTeamDbId(result.id);
+      setSubmitted(true);
+    }
   };
 
   if (submitted) {
@@ -312,12 +322,14 @@ function TeamReg({ onSubmit }) {
               <strong>{f.teamName}</strong> has been registered. Complete payment below to confirm.
             </p>
             <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="POST" target="_blank">
-              <input required type="hidden" name="cmd" value="_paynow" />
-              <input required type="hidden" name="receiver" pattern="[0-9]" value="33250683" />
-              <input type="hidden" name="return_url" value="https://www.ffsa.co.za" />
-              <input required type="hidden" name="amount" value="2650" />
-              <input required type="hidden" name="item_name" maxLength="255" value={`FFSA payment - ${f.teamName}`} />
-              <input type="hidden" name="item_description" maxLength="255" value={`Payment for the FFSA registration - ${f.managerName}`} />
+              <input type="hidden" name="cmd" value="_paynow" readOnly />
+              <input type="hidden" name="receiver" value="33250683" readOnly />
+              <input type="hidden" name="m_payment_id" value={teamDbId || ""} readOnly />
+              <input type="hidden" name="return_url" value="https://www.ffsa.co.za" readOnly />
+              <input type="hidden" name="notify_url" value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payfast-itn`} readOnly />
+              <input type="hidden" name="amount" value="2650" readOnly />
+              <input type="hidden" name="item_name" maxLength="255" value={`FFSA Team Registration - ${sanitize(f.teamName)}`} readOnly />
+              <input type="hidden" name="item_description" maxLength="255" value={`FFSA registration payment - ${sanitize(f.managerName)}`} readOnly />
               <Button type="submit" variant="gold" style={{ width: "100%", padding: "16px", fontSize: "15px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
                 <img src="https://my.payfast.io/images/buttons/PayNow/Primary-Large-PayNow.png" alt="Pay Now" style={{ height: "24px" }} />
                 <span>Pay R2,650</span>
@@ -413,18 +425,23 @@ function PlayerReg({ onSubmit, teams }) {
 
   const handlePhoto = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const r = new FileReader();
-      r.onload = (ev) => setPhoto(ev.target.result);
-      r.readAsDataURL(file);
+    if (!file) return;
+    const result = validatePhoto(file);
+    if (!result.valid) {
+      alert(result.error);
+      e.target.value = '';
+      return;
     }
+    const r = new FileReader();
+    r.onload = (ev) => setPhoto(ev.target.result);
+    r.readAsDataURL(file);
   };
 
   const submit = () => {
-    if (!f.firstName || !f.lastName || !f.dob || !f.gender || !f.email || !f.phone) return alert("Please fill in all required fields.");
-    if (!photo) return alert("Please upload a player photo.");
-    if (!f.terms) return alert("Please accept the terms.");
-    onSubmit({ ...f, photo, age: age(f.dob), id: Date.now(), status: "Registered", date: new Date().toISOString() });
+    const errors = validatePlayerForm(f, photo);
+    if (errors.length > 0) return alert(errors.join('\n'));
+    const sanitized = sanitizeObject(f);
+    onSubmit({ ...sanitized, photo, age: age(f.dob), id: Date.now(), status: "Registered", date: new Date().toISOString() });
     setSubmitted(true);
   };
 
@@ -520,7 +537,7 @@ function PlayerReg({ onSubmit, teams }) {
               </div>
               <input ref={ref} type="file" accept="image/*" onChange={handlePhoto} style={{ display: "none" }} />
               <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: "11px", color: C.textFaint, marginTop: "6px" }}>
-                Headshot for player card *
+                Headshot for player card * (JPG/PNG, max {PHOTO_MAX_SIZE_MB}MB)
               </div>
             </div>
 
@@ -587,9 +604,40 @@ function PlayerReg({ onSubmit, teams }) {
 
 function Admin({ teams, players }) {
   const [auth, setAuth] = useState(false);
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [tab, setTab] = useState("teams");
   const [search, setSearch] = useState("");
+
+  // Check for existing Supabase session on mount
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setAuth(true);
+    });
+  }, []);
+
+  const handleLogin = async () => {
+    if (!isValidEmail(email)) { setAuthError("Please enter a valid email."); return; }
+    if (!pw) { setAuthError("Please enter your password."); return; }
+    setAuthLoading(true);
+    setAuthError("");
+    const { error } = await supabase.auth.signInWithPassword({ email: sanitize(email), password: pw });
+    setAuthLoading(false);
+    if (error) {
+      setAuthError("Invalid credentials. Contact FFSA admin for access.");
+    } else {
+      setAuth(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuth(false);
+    setEmail("");
+    setPw("");
+  };
 
   if (!auth) {
     return (
@@ -599,10 +647,18 @@ function Admin({ teams, players }) {
           <div style={{ padding: "40px", textAlign: "center" }}>
             <div style={{ fontSize: "32px", marginBottom: "16px" }}>🔒</div>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", fontWeight: 800, color: C.navy, margin: "0 0 6px" }}>Admin Access</h2>
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", color: C.textLight, margin: "0 0 24px" }}>Enter password to continue</p>
-            <Input type="password" value={pw} onChange={setPw} placeholder="Password" />
-            <Button variant="primary" onClick={() => pw === "ffsa2025" ? setAuth(true) : alert("Incorrect password.")} style={{ width: "100%" }}>
-              Unlock
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", color: C.textLight, margin: "0 0 24px" }}>Sign in with your admin account</p>
+            {authError && (
+              <div style={{
+                padding: "10px 14px", borderRadius: "8px", marginBottom: "16px",
+                background: `${C.red}10`, border: `1px solid ${C.red}30`,
+                fontFamily: "'Outfit', sans-serif", fontSize: "13px", color: C.red, textAlign: "left",
+              }}>{authError}</div>
+            )}
+            <Input type="email" value={email} onChange={setEmail} placeholder="admin@ffsa.co.za" label="Email" />
+            <Input type="password" value={pw} onChange={setPw} placeholder="Password" label="Password" />
+            <Button variant="primary" onClick={handleLogin} disabled={authLoading} style={{ width: "100%" }}>
+              {authLoading ? "Signing in..." : "Sign In"}
             </Button>
           </div>
         </Card>
@@ -623,8 +679,15 @@ function Admin({ teams, players }) {
   return (
     <div style={{ minHeight: "100vh", padding: "110px 16px 80px", background: C.bg }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 800, color: C.navy, margin: "0 0 6px" }}>Dashboard</h1>
-        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textLight, marginBottom: "28px" }}>Manage registrations</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
+          <div>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 800, color: C.navy, margin: "0 0 6px" }}>Dashboard</h1>
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textLight }}>Manage registrations</p>
+          </div>
+          <Button variant="ghost" onClick={handleLogout} style={{ fontSize: "13px", padding: "8px 18px" }}>
+            Sign Out
+          </Button>
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "28px" }}>
           {[
@@ -735,8 +798,20 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      try { const { data: t } = await supabase.from('teams').select('*'); if (t) setTeams(t); } catch (e) { console.error(e); }
-      try { const { data: p } = await supabase.from('players').select('*'); if (p) setPlayers(p); } catch (e) { console.error(e); }
+      try {
+        const { data: t, error: tErr } = await supabase.from('teams').select('*');
+        if (tErr) throw tErr;
+        if (t) setTeams(t);
+      } catch {
+        // Silently fail - data will load when admin authenticates
+      }
+      try {
+        const { data: p, error: pErr } = await supabase.from('players').select('*');
+        if (pErr) throw pErr;
+        if (p) setPlayers(p);
+      } catch {
+        // Silently fail - data will load when admin authenticates
+      }
     })();
   }, []);
 
@@ -745,9 +820,15 @@ export default function App() {
     const { terms, ...teamData } = t;
     try {
       const { data, error } = await supabase.from('teams').insert([teamData]).select();
-      if (data) setTeams(p => [...p, data[0]]);
-      if (error) console.error(error);
-    } catch (e) { console.error(e) }
+      if (error) { alert("Registration failed. Please try again."); return null; }
+      if (data) {
+        setTeams(p => [...p, data[0]]);
+        return data[0]; // Return the record so TeamReg gets the database UUID
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    }
+    return null;
   };
 
   const handlePlayerReg = async (p) => {
@@ -755,9 +836,11 @@ export default function App() {
     const { terms, ...playerData } = p;
     try {
       const { data, error } = await supabase.from('players').insert([playerData]).select();
+      if (error) { alert("Registration failed. Please try again."); return; }
       if (data) setPlayers(prev => [...prev, data[0]]);
-      if (error) console.error(error);
-    } catch (e) { console.error(e) }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
