@@ -1,10 +1,32 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Component } from "react";
 import { supabase } from './supabaseClient';
 import {
   sanitize, sanitizeObject, isValidEmail, isValidPhone,
   validateTeamForm, validatePlayerForm, validatePhoto,
   PHOTO_MAX_SIZE_MB,
 } from './validation';
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error, info) { console.error('FFSA App Error:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", textAlign: "center", padding: "20px" }}>
+          <div>
+            <h1 style={{ fontSize: "24px", marginBottom: "12px", color: "#1a1f3d" }}>Something went wrong</h1>
+            <p style={{ color: "#4a5068", marginBottom: "20px" }}>Please refresh the page to try again.</p>
+            <button onClick={() => window.location.reload()} style={{ padding: "12px 24px", background: "#00843d", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "14px" }}>
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const C = {
   green: "#00843d",
@@ -145,6 +167,14 @@ function Card({ children, style, hover, onClick }) {
 }
 
 function Nav({ page, setPage }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navItems = [
+    { key: "home", label: "Home" },
+    { key: "team", label: "Teams" },
+    { key: "player", label: "Players" },
+    { key: "admin", label: "Admin" },
+  ];
+
   return (
     <>
       <FlagStripe height={3} style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 101 }} />
@@ -155,23 +185,21 @@ function Nav({ page, setPage }) {
       }}>
         <div style={{
           maxWidth: "1100px", margin: "0 auto", padding: "8px 16px", minHeight: "60px",
-          display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}
-            onClick={() => setPage("home")}>
-            <img src="/assets/ffsa-logo.jpg" alt="FFSA Logo" style={{ height: "36px", borderRadius: "6px" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", minWidth: 0 }}
+            onClick={() => { setPage("home"); setMenuOpen(false); }}>
+            <img src="/assets/ffsa-logo.jpg" alt="FFSA Logo" style={{ height: "36px", width: "36px", borderRadius: "6px", flexShrink: 0 }} />
             <span style={{
               fontSize: "11px", color: C.textLight, fontFamily: "'Outfit', sans-serif",
               borderLeft: `1.5px solid ${C.border}`, paddingLeft: "10px", marginLeft: "2px",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}>Flag Football South Africa</span>
           </div>
-          <div style={{ display: "flex", gap: "2px", flexWrap: "wrap", justifyContent: "center" }}>
-            {[
-              { key: "home", label: "Home" },
-              { key: "team", label: "Teams" },
-              { key: "player", label: "Players" },
-              { key: "admin", label: "Admin" },
-            ].map(item => (
+
+          {/* Desktop nav links */}
+          <div className="nav-desktop" style={{ display: "flex", gap: "2px" }}>
+            {navItems.map(item => (
               <button key={item.key} onClick={() => setPage(item.key)}
                 style={{
                   padding: "8px 16px", borderRadius: "8px", border: "none",
@@ -184,7 +212,39 @@ function Nav({ page, setPage }) {
               </button>
             ))}
           </div>
+
+          {/* Mobile hamburger */}
+          <button className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+            style={{
+              display: "none", background: "none", border: "none", cursor: "pointer",
+              padding: "8px", fontSize: "22px", color: C.text, lineHeight: 1,
+            }}>
+            {menuOpen ? "\u2715" : "\u2630"}
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <div className="nav-mobile" style={{
+            display: "none", padding: "8px 16px 16px",
+            borderTop: `1px solid ${C.border}`, background: "rgba(255,255,255,0.98)",
+          }}>
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => { setPage(item.key); setMenuOpen(false); }}
+                style={{
+                  display: "block", width: "100%", textAlign: "left",
+                  padding: "12px 16px", borderRadius: "8px", border: "none",
+                  background: page === item.key ? `${C.green}0d` : "transparent",
+                  color: page === item.key ? C.green : C.textMid,
+                  fontFamily: "'Outfit', sans-serif", fontWeight: 500, fontSize: "15px",
+                  cursor: "pointer", transition: "all 0.2s ease", marginBottom: "2px",
+                }}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
     </>
   );
@@ -222,7 +282,7 @@ function Home({ setPage }) {
           Official registration portal for teams and players. Join the growing flag football community.
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px", maxWidth: "640px", margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: "20px", maxWidth: "640px", margin: "0 auto" }}>
           <Card hover onClick={() => setPage("team")} style={{ padding: "36px 28px", textAlign: "left" }}>
             <div style={{
               width: "44px", height: "44px", borderRadius: "12px", marginBottom: "18px",
@@ -309,7 +369,7 @@ function TeamReg({ onSubmit }) {
       <div style={{ minHeight: "100vh", padding: "110px 16px 80px", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Card style={{ maxWidth: "520px", width: "100%", overflow: "hidden" }}>
           <FlagStripe height={4} />
-          <div style={{ padding: "48px 40px", textAlign: "center" }}>
+          <div style={{ padding: "clamp(24px, 5vw, 48px) clamp(16px, 4vw, 40px)", textAlign: "center" }}>
             <div style={{
               width: "56px", height: "56px", borderRadius: "50%", margin: "0 auto 20px",
               background: `${C.green}10`, display: "flex", alignItems: "center", justifyContent: "center",
@@ -358,14 +418,14 @@ function TeamReg({ onSubmit }) {
 
         <Card style={{ overflow: "hidden" }}>
           <FlagStripe height={3} />
-          <div style={{ padding: "32px" }}>
+          <div style={{ padding: "clamp(16px, 4vw, 32px)" }}>
             <Section title="Team Information" color={C.green} />
             <Input label="Team Name" value={f.teamName} onChange={v => s("teamName", v)} required placeholder="e.g. Joburg Jaguars" />
             <Input label="Home Ground / Venue" value={f.homeGround} onChange={v => s("homeGround", v)} placeholder="e.g. Wanderers Stadium" />
             <Input label="Expected Number of Players" type="number" value={f.numPlayers} onChange={v => s("numPlayers", v)} placeholder="e.g. 12" />
 
             <Section title="Manager / Contact" color={C.gold} />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0 14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: "0 14px" }}>
               <Input label="Full Name" value={f.managerName} onChange={v => s("managerName", v)} required placeholder="John Smith" />
               <Input label="Email" type="email" value={f.managerEmail} onChange={v => s("managerEmail", v)} required placeholder="john@example.com" />
               <Input label="Phone" type="tel" value={f.managerPhone} onChange={v => s("managerPhone", v)} required placeholder="+27 82 123 4567" />
@@ -450,7 +510,7 @@ function PlayerReg({ onSubmit, teams }) {
       <div style={{ minHeight: "100vh", padding: "110px 16px 80px", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Card style={{ maxWidth: "440px", width: "100%", overflow: "hidden" }}>
           <FlagStripe height={4} />
-          <div style={{ padding: "48px 40px", textAlign: "center" }}>
+          <div style={{ padding: "clamp(24px, 5vw, 48px) clamp(16px, 4vw, 40px)", textAlign: "center" }}>
             <div style={{
               width: "56px", height: "56px", borderRadius: "50%", margin: "0 auto 20px",
               background: `${C.green}10`, display: "flex", alignItems: "center", justifyContent: "center",
@@ -517,7 +577,7 @@ function PlayerReg({ onSubmit, teams }) {
 
         <Card style={{ overflow: "hidden" }}>
           <FlagStripe height={3} />
-          <div style={{ padding: "32px" }}>
+          <div style={{ padding: "clamp(16px, 4vw, 32px)" }}>
             <div style={{ textAlign: "center", marginBottom: "28px" }}>
               <div onClick={() => ref.current?.click()} style={{
                 width: "100px", height: "100px", borderRadius: "50%", margin: "0 auto",
@@ -542,7 +602,7 @@ function PlayerReg({ onSubmit, teams }) {
             </div>
 
             <Section title="Personal Details" color={C.green} />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0 14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: "0 14px" }}>
               <Input label="First Name" value={f.firstName} onChange={v => s("firstName", v)} required placeholder="John" />
               <Input label="Last Name" value={f.lastName} onChange={v => s("lastName", v)} required placeholder="Smith" />
               <Input label="Date of Birth" type="date" value={f.dob} onChange={v => s("dob", v)} required />
@@ -562,7 +622,7 @@ function PlayerReg({ onSubmit, teams }) {
             <Input label="ID / Passport Number" value={f.idNumber} onChange={v => s("idNumber", v)} placeholder="9501015800083" />
 
             <Section title="Contact" color={C.gold} />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0 14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: "0 14px" }}>
               <Input label="Email" type="email" value={f.email} onChange={v => s("email", v)} required placeholder="john@email.com" />
               <Input label="Phone" type="tel" value={f.phone} onChange={v => s("phone", v)} required placeholder="+27 82 123 4567" />
               <Input label="Emergency Contact" value={f.emergencyName} onChange={v => s("emergencyName", v)} placeholder="Jane Smith" />
@@ -573,7 +633,7 @@ function PlayerReg({ onSubmit, teams }) {
             <Input label="Team" type="select" value={f.team} onChange={v => s("team", v)}
               options={[...teams.map(t => t.teamName), "Free Agent / Looking for a team"]}
               placeholder="Select your team..." />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0 14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: "0 14px" }}>
               <Input label="Offensive Position" type="select" value={f.offPos} onChange={v => s("offPos", v)} options={OFFPOS} placeholder="Select..." />
               <Input label="Defensive Position" type="select" value={f.defPos} onChange={v => s("defPos", v)} options={DEFPOS} placeholder="Select..." />
             </div>
@@ -689,7 +749,7 @@ function Admin({ teams, players }) {
           </Button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "28px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: "14px", marginBottom: "28px" }}>
           {[
             { label: "Teams", value: teams.length, color: C.green },
             { label: "Players", value: players.length, color: C.gold },
@@ -717,7 +777,7 @@ function Admin({ teams, players }) {
               }}>{t} ({t === "teams" ? teams.length : players.length})</button>
             ))}
           </div>
-          <div style={{ width: "260px" }}>
+          <div style={{ width: "100%", maxWidth: "260px", minWidth: "160px" }}>
             <Input value={search} onChange={setSearch} placeholder="Search..." style={{ marginBottom: 0 }} />
           </div>
         </div>
@@ -844,12 +904,33 @@ export default function App() {
   };
 
   return (
+    <ErrorBoundary>
     <div style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${C.bg}; }
+        body { background: ${C.bg}; -webkit-text-size-adjust: 100%; }
         ::selection { background: ${C.green}20; }
+        img { max-width: 100%; height: auto; }
+
+        /* Responsive nav: hide hamburger on desktop, hide links on mobile */
+        @media (min-width: 641px) {
+          .nav-desktop { display: flex !important; }
+          .nav-hamburger { display: none !important; }
+          .nav-mobile { display: none !important; }
+        }
+        @media (max-width: 640px) {
+          .nav-desktop { display: none !important; }
+          .nav-hamburger { display: block !important; }
+          .nav-mobile { display: block !important; }
+        }
+
+        /* Responsive table: allow horizontal scroll */
+        table { min-width: 600px; }
+
+        /* Small screen padding adjustments */
+        @media (max-width: 480px) {
+          h1 { font-size: clamp(22px, 6vw, 28px) !important; }
+        }
       `}</style>
       <Nav page={page} setPage={setPage} />
       {page === "home" && <Home setPage={setPage} />}
@@ -857,5 +938,6 @@ export default function App() {
       {page === "player" && <PlayerReg onSubmit={handlePlayerReg} teams={teams} />}
       {page === "admin" && <Admin teams={teams} players={players} />}
     </div>
+    </ErrorBoundary>
   );
 }

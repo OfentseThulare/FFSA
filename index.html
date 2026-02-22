@@ -21,6 +21,11 @@
     <meta name="theme-color" content="#00843d" />
     <meta name="msapplication-TileColor" content="#00843d" />
 
+    <!-- Google Fonts - preconnect + load in head to avoid render-blocking @import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.ffsa.co.za" />
@@ -63,6 +68,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:20px">
+        <div>
+          <h1>Flag Football South Africa</h1>
+          <p>Please enable JavaScript to use the FFSA registration portal.</p>
+        </div>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
