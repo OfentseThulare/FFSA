@@ -194,7 +194,7 @@ function Nav({ page, setPage }) {
               fontSize: "11px", color: C.textLight, fontFamily: "'Outfit', sans-serif",
               borderLeft: `1.5px solid ${C.border}`, paddingLeft: "10px", marginLeft: "2px",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-            }}>Flag Football South Africa</span>
+            }}>Autumn Bowl 2026</span>
           </div>
 
           {/* Desktop nav links */}
@@ -261,7 +261,50 @@ function Home({ setPage }) {
       transition: "all 0.6s ease",
     }}>
       <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
-        <img src="/assets/ffsa-logo.jpg" alt="FFSA Logo" style={{ width: "96px", height: "96px", borderRadius: "16px", margin: "0 auto 24px", display: "block", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }} />
+        {/* Autumn leaf SVG graphic */}
+        <div style={{ margin: "0 auto 20px", width: "180px", height: "120px", position: "relative" }}>
+          <svg viewBox="0 0 180 120" width="180" height="120" xmlns="http://www.w3.org/2000/svg">
+            {/* Scattered maple leaves */}
+            <g transform="translate(20,25) rotate(-30,15,15) scale(0.7)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#fdb913" opacity="0.85"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#fdb913" strokeWidth="1.2" opacity="0.7"/>
+            </g>
+            <g transform="translate(140,15) rotate(25,15,15) scale(0.55)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#e03c31" opacity="0.8"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#e03c31" strokeWidth="1.2" opacity="0.6"/>
+            </g>
+            <g transform="translate(55,5) rotate(15,15,15) scale(0.5)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#00843d" opacity="0.7"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#00843d" strokeWidth="1.2" opacity="0.5"/>
+            </g>
+            <g transform="translate(105,10) rotate(-15,15,15) scale(0.45)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#fdb913" opacity="0.7"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#fdb913" strokeWidth="1.2" opacity="0.5"/>
+            </g>
+            <g transform="translate(35,70) rotate(40,15,15) scale(0.5)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#e03c31" opacity="0.7"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#e03c31" strokeWidth="1.2" opacity="0.5"/>
+            </g>
+            <g transform="translate(120,70) rotate(-40,15,15) scale(0.6)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#00843d" opacity="0.75"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#00843d" strokeWidth="1.2" opacity="0.55"/>
+            </g>
+            <g transform="translate(75,80) rotate(10,15,15) scale(0.4)">
+              <path d="M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z" fill="#fdb913" opacity="0.65"/>
+              <line x1="15" y1="19" x2="15" y2="32" stroke="#fdb913" strokeWidth="1.2" opacity="0.45"/>
+            </g>
+            {/* Small football silhouette in center */}
+            <g transform="translate(78,42)">
+              <ellipse cx="12" cy="8" rx="12" ry="8" fill="#5c3d1a" opacity="0.6"/>
+              <path d="M4 8 Q12 2 20 8" stroke="#fff" strokeWidth="0.8" fill="none" opacity="0.5"/>
+              <path d="M4 8 Q12 14 20 8" stroke="#fff" strokeWidth="0.8" fill="none" opacity="0.5"/>
+              <line x1="8" y1="4.5" x2="8" y2="11.5" stroke="#fff" strokeWidth="0.5" opacity="0.4"/>
+              <line x1="12" y1="3" x2="12" y2="13" stroke="#fff" strokeWidth="0.5" opacity="0.4"/>
+              <line x1="16" y1="4.5" x2="16" y2="11.5" stroke="#fff" strokeWidth="0.5" opacity="0.4"/>
+            </g>
+          </svg>
+        </div>
+
         <div style={{
           display: "inline-flex", padding: "5px 14px", borderRadius: "100px",
           background: `${C.green}0a`, border: `1px solid ${C.green}20`,
@@ -270,16 +313,31 @@ function Home({ setPage }) {
         }}>Registration Open</div>
 
         <h1 style={{
-          fontFamily: "'Playfair Display', serif", fontSize: "clamp(32px, 5vw, 52px)",
-          fontWeight: 800, color: C.navy, margin: "0 0 16px", lineHeight: 1.15,
+          fontFamily: "'Playfair Display', serif", fontSize: "clamp(40px, 7vw, 68px)",
+          fontWeight: 900, margin: "0 0 4px", lineHeight: 1.05,
+          background: "linear-gradient(135deg, #fdb913 0%, #e8a010 40%, #e03c31 100%)",
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
         }}>
-          Flag Football<br />South Africa
+          Autumn Bowl
         </h1>
+        <div style={{
+          fontFamily: "'Playfair Display', serif", fontSize: "clamp(24px, 4vw, 40px)",
+          fontWeight: 800, color: C.navy, margin: "0 0 16px", lineHeight: 1.2,
+        }}>
+          2026
+        </div>
+        <div style={{
+          display: "inline-flex", padding: "4px 12px", borderRadius: "100px",
+          background: `${C.textLight}10`, border: `1px solid ${C.border}`,
+          fontFamily: "'Outfit', sans-serif", fontSize: "11px", fontWeight: 500,
+          color: C.textLight, letterSpacing: "0.5px", marginBottom: "24px",
+        }}>Flag Football South Africa</div>
         <p style={{
           fontFamily: "'Outfit', sans-serif", fontSize: "16px", color: C.textMid,
           maxWidth: "460px", margin: "0 auto 48px", lineHeight: 1.7,
         }}>
-          Official registration portal for teams and players. Join the growing flag football community.
+          Official registration portal for teams and players. Join the Autumn Bowl 2026 tournament.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: "20px", maxWidth: "640px", margin: "0 auto" }}>
@@ -296,7 +354,7 @@ function Home({ setPage }) {
             <p style={{
               fontFamily: "'Outfit', sans-serif", fontSize: "13px",
               color: C.textLight, lineHeight: 1.6, margin: "0 0 20px",
-            }}>Register your team for the FFSA league. Includes PayFast payment.</p>
+            }}>Register your team for the Autumn Bowl. Includes PayFast payment.</p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "20px", color: C.green }}>R2,650</span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: "13px", color: C.green }}>Register →</span>
@@ -316,7 +374,7 @@ function Home({ setPage }) {
             <p style={{
               fontFamily: "'Outfit', sans-serif", fontSize: "13px",
               color: C.textLight, lineHeight: 1.6, margin: "0 0 20px",
-            }}>Register as an individual player with photo and position details.</p>
+            }}>Register as a player for the Autumn Bowl with photo and position details.</p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "20px", color: C.gold }}>Free</span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: "13px", color: C.gold }}>Register →</span>
@@ -329,9 +387,10 @@ function Home({ setPage }) {
           padding: "20px 0", borderTop: `1px solid ${C.border}`, flexWrap: "wrap",
         }}>
           {[
+            { label: "Event", value: "Autumn Bowl" },
             { label: "Division", value: "Adult Mixed" },
-            { label: "Season Fee", value: "R2,650" },
-            { label: "Sport", value: "Flag Football" },
+            { label: "Team Fee", value: "R2,650" },
+            { label: "Date", value: "TBC" },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
               <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "16px", color: C.navy }}>{s.value}</div>
@@ -379,7 +438,7 @@ function TeamReg({ onSubmit }) {
               Registration Saved
             </h2>
             <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textMid, lineHeight: 1.7, margin: "0 0 28px" }}>
-              <strong>{f.teamName}</strong> has been registered. Complete payment below to confirm.
+              <strong>{f.teamName}</strong> has been registered for the Autumn Bowl. Complete payment below to confirm your spot.
             </p>
             <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="POST" target="_blank">
               <input type="hidden" name="cmd" value="_paynow" readOnly />
@@ -388,8 +447,8 @@ function TeamReg({ onSubmit }) {
               <input type="hidden" name="return_url" value="https://www.ffsa.co.za" readOnly />
               <input type="hidden" name="notify_url" value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payfast-itn`} readOnly />
               <input type="hidden" name="amount" value="2650" readOnly />
-              <input type="hidden" name="item_name" maxLength="255" value={`FFSA Team Registration - ${sanitize(f.teamName)}`} readOnly />
-              <input type="hidden" name="item_description" maxLength="255" value={`FFSA registration payment - ${sanitize(f.managerName)}`} readOnly />
+              <input type="hidden" name="item_name" maxLength="255" value={`FFSA Autumn Bowl - ${sanitize(f.teamName)}`} readOnly />
+              <input type="hidden" name="item_description" maxLength="255" value="Autumn Bowl Team Registration" readOnly />
               <Button type="submit" variant="gold" style={{ width: "100%", padding: "16px", fontSize: "15px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
                 <img src="https://my.payfast.io/images/buttons/PayNow/Primary-Large-PayNow.png" alt="Pay Now" style={{ height: "24px" }} />
                 <span>Pay R2,650</span>
@@ -409,10 +468,10 @@ function TeamReg({ onSubmit }) {
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
         <div style={{ marginBottom: "32px" }}>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 800, color: C.navy, margin: "0 0 6px" }}>
-            Team Registration
+            Autumn Bowl · Team Registration
           </h1>
           <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textLight }}>
-            Adult Mixed Division · R2,650 registration fee
+            Adult Mixed Division · R2,650 per team
           </p>
         </div>
 
@@ -450,7 +509,7 @@ function TeamReg({ onSubmit }) {
               padding: "16px 20px", borderRadius: "10px", margin: "20px 0",
               background: `${C.green}06`, border: `1px solid ${C.green}15`,
             }}>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", fontWeight: 600, color: C.textMid }}>Registration Fee</span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", fontWeight: 600, color: C.textMid }}>Autumn Bowl Entry Fee</span>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "24px", fontWeight: 800, color: C.green }}>R2,650</span>
             </div>
 
@@ -520,7 +579,7 @@ function PlayerReg({ onSubmit, teams }) {
               Player Registered
             </h2>
             <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textMid, margin: "0 0 28px" }}>
-              Welcome to FFSA, {f.firstName}!
+              Welcome to the Autumn Bowl, {f.firstName}!
             </p>
             <div style={{
               width: "240px", margin: "0 auto", borderRadius: "14px", overflow: "hidden",
@@ -568,7 +627,7 @@ function PlayerReg({ onSubmit, teams }) {
       <div style={{ maxWidth: "640px", margin: "0 auto" }}>
         <div style={{ marginBottom: "32px" }}>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "28px", fontWeight: 800, color: C.navy, margin: "0 0 6px" }}>
-            Player Registration
+            Autumn Bowl · Player Registration
           </h1>
           <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textLight }}>
             Adult Mixed Division · Photo required for player card
@@ -908,7 +967,19 @@ export default function App() {
     <div style={{ fontFamily: "'Outfit', sans-serif" }}>
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${C.bg}; -webkit-text-size-adjust: 100%; }
+        body {
+          background: ${C.bg};
+          -webkit-text-size-adjust: 100%;
+          background-image:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 32'%3E%3Cpath d='M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z' fill='%23fdb913' opacity='0.045'/%3E%3Cline x1='15' y1='19' x2='15' y2='32' stroke='%23fdb913' stroke-width='1' opacity='0.03'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 32'%3E%3Cpath d='M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z' fill='%23e03c31' opacity='0.035'/%3E%3Cline x1='15' y1='19' x2='15' y2='32' stroke='%23e03c31' stroke-width='1' opacity='0.025'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 32'%3E%3Cpath d='M15 0 L18 10 L28 8 L20 15 L26 24 L15 19 L4 24 L10 15 L2 8 L12 10 Z' fill='%2300843d' opacity='0.03'/%3E%3Cline x1='15' y1='19' x2='15' y2='32' stroke='%2300843d' stroke-width='1' opacity='0.02'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cpath d='M20 2 C18 6 14 8 10 8 C12 12 10 16 8 18 C12 18 14 22 14 26 C16 24 20 24 20 24 C20 24 24 24 26 26 C26 22 28 18 32 18 C30 16 28 12 30 8 C26 8 22 6 20 2Z' fill='%238B5E3C' opacity='0.04'/%3E%3Cline x1='20' y1='24' x2='20' y2='40' stroke='%238B5E3C' stroke-width='1' opacity='0.03'/%3E%3Cpath d='M14 16 Q20 14 26 16' stroke='%238B5E3C' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3Cpath d='M16 20 Q20 18 24 20' stroke='%238B5E3C' stroke-width='0.5' fill='none' opacity='0.03'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 40'%3E%3Cpath d='M18 2 C16 6 12 8 8 8 C10 12 8 16 6 18 C10 18 12 22 12 26 C14 24 18 24 18 24 C18 24 22 24 24 26 C24 22 26 18 30 18 C28 16 26 12 28 8 C24 8 20 6 18 2Z' fill='%23A0522D' opacity='0.035'/%3E%3Cline x1='18' y1='24' x2='18' y2='36' stroke='%23A0522D' stroke-width='0.8' opacity='0.025'/%3E%3C/svg%3E");
+          background-size: 80px 85px, 110px 117px, 95px 101px, 120px 132px, 100px 110px;
+          background-position: 5% 3%, 92% 8%, 3% 90%, 50% 50%, 75% 25%;
+          background-repeat: repeat;
+        }
         ::selection { background: ${C.green}20; }
         img { max-width: 100%; height: auto; }
 
