@@ -356,7 +356,7 @@ function Home({ setPage }) {
               color: C.textLight, lineHeight: 1.6, margin: "0 0 20px",
             }}>Register your team for the Autumn Bowl. Includes PayFast payment.</p>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "20px", color: C.green }}>R2,650</span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "20px", color: C.green }}>R3,000</span>
               <span style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, fontSize: "13px", color: C.green }}>Register →</span>
             </div>
           </Card>
@@ -389,8 +389,8 @@ function Home({ setPage }) {
           {[
             { label: "Event", value: "Autumn Bowl" },
             { label: "Division", value: "Adult Mixed" },
-            { label: "Team Fee", value: "R2,650" },
-            { label: "Date", value: "TBC" },
+            { label: "Season Fee", value: "R3,000" },
+            { label: "Sport", value: "Flag Football" },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
               <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: "16px", color: C.navy }}>{s.value}</div>
@@ -438,25 +438,95 @@ function TeamReg({ onSubmit }) {
               Registration Saved
             </h2>
             <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textMid, lineHeight: 1.7, margin: "0 0 28px" }}>
-              <strong>{f.teamName}</strong> has been registered for the Autumn Bowl. Complete payment below to confirm your spot.
+              <strong>{f.teamName}</strong> has been registered. Complete payment below to confirm your spot.
             </p>
-            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="POST" target="_blank">
-              <input type="hidden" name="cmd" value="_paynow" readOnly />
-              <input type="hidden" name="receiver" value="33250683" readOnly />
-              <input type="hidden" name="m_payment_id" value={teamDbId || ""} readOnly />
-              <input type="hidden" name="return_url" value="https://www.ffsa.co.za" readOnly />
-              <input type="hidden" name="notify_url" value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payfast-itn`} readOnly />
-              <input type="hidden" name="amount" value="2650" readOnly />
-              <input type="hidden" name="item_name" maxLength="255" value={`FFSA Autumn Bowl - ${sanitize(f.teamName)}`} readOnly />
-              <input type="hidden" name="item_description" maxLength="255" value="Autumn Bowl Team Registration" readOnly />
-              <Button type="submit" variant="gold" style={{ width: "100%", padding: "16px", fontSize: "15px", display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
-                <img src="https://my.payfast.io/images/buttons/PayNow/Primary-Large-PayNow.png" alt="Pay Now" style={{ height: "24px" }} />
-                <span>Pay R2,650</span>
-              </Button>
+
+            {/* Option 1: PayFast Online Payment */}
+            <Section title="Option 1 — Pay Online" color={C.green} />
+            <form name="PayFastPayNowForm" action="https://payment.payfast.io/eng/process" method="post" target="_blank">
+              <input required type="hidden" name="cmd" value="_paynow" />
+              <input required type="hidden" name="receiver" value="33250683" />
+              <input type="hidden" name="m_payment_id" value={teamDbId || ""} />
+              <input type="hidden" name="return_url" value="https://www.ffsa.co.za/" />
+              <input type="hidden" name="notify_url" value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payfast-itn`} />
+              <input required type="hidden" name="amount" value="3000" />
+              <input required type="hidden" name="item_name" maxLength="255" value="Autumn Bowl" />
+              <input type="hidden" name="item_description" maxLength="255" value={`FFSA Autumn Bowl entry - ${sanitize(f.teamName)}`} />
+              <button type="submit" style={{
+                width: "100%", padding: "14px", background: C.white, border: `1.5px solid ${C.border}`,
+                borderRadius: "10px", cursor: "pointer", transition: "all 0.2s ease",
+                display: "flex", justifyContent: "center", alignItems: "center",
+              }}>
+                <img src="https://my.payfast.io/images/buttons/BuyNow/Primary-Large-BuyNow.png" alt="Buy Now with PayFast" style={{ height: "32px" }} />
+              </button>
             </form>
-            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "11px", color: C.textFaint, marginTop: "12px" }}>
-              Secure payment via PayFast
+            <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "11px", color: C.textFaint, marginTop: "8px", textAlign: "center" }}>
+              Instant confirmation via PayFast
             </p>
+
+            {/* EFT Fallback */}
+            <div style={{
+              marginTop: "28px", padding: "20px", borderRadius: "12px",
+              background: `${C.bg}`, border: `1px solid ${C.border}`,
+            }}>
+              <p style={{
+                fontFamily: "'Outfit', sans-serif", fontSize: "13px", color: C.textMid,
+                lineHeight: 1.7, margin: "0 0 18px", textAlign: "center",
+              }}>
+                In case the above processor does not work, please transfer the funds into the banking details below:
+              </p>
+
+              <div style={{
+                borderRadius: "10px", border: `1px solid ${C.border}`,
+                overflow: "hidden", background: C.white,
+              }}>
+                <div style={{
+                  padding: "14px 16px", background: C.white, borderBottom: `1px solid ${C.border}`,
+                  display: "flex", alignItems: "center", gap: "10px",
+                }}>
+                  <img src="/assets/acg-logo.png" alt="Atlas Consulting Group" style={{ height: "24px", width: "24px", borderRadius: "4px", objectFit: "contain" }} />
+                  <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "12px", fontWeight: 600, color: C.navy }}>
+                    Atlas Consulting Group
+                  </span>
+                </div>
+                <div style={{ padding: "16px" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "auto" }}>
+                    <tbody>
+                      {[
+                        { label: "Bank", value: "FNB / RMB" },
+                        { label: "Account Holder", value: "Atlas Consulting Group South Africa (Pty) Ltd" },
+                        { label: "Account Type", value: "Gold Business Account" },
+                        { label: "Account Number", value: "63148559652" },
+                        { label: "Branch Code", value: "250655" },
+                        { label: "Amount", value: "R3,000.00" },
+                        { label: "Reference", value: `${sanitize(f.teamName).substring(0, 3).toUpperCase() || "TEAM"}-FEE` },
+                      ].map((row, i) => (
+                        <tr key={i} style={{ borderBottom: i < 6 ? `1px solid ${C.border}` : "none" }}>
+                          <td style={{
+                            padding: "10px 12px", fontFamily: "'Outfit', sans-serif", fontSize: "12px",
+                            fontWeight: 600, color: C.textLight, textTransform: "uppercase", letterSpacing: "0.5px",
+                            whiteSpace: "nowrap", width: "140px", verticalAlign: "top",
+                          }}>{row.label}</td>
+                          <td style={{
+                            padding: "10px 12px", fontFamily: "'Outfit', sans-serif", fontSize: "13px",
+                            fontWeight: row.label === "Amount" || row.label === "Reference" ? 700 : 500,
+                            color: row.label === "Amount" ? C.green : row.label === "Reference" ? C.navy : C.textMid,
+                            wordBreak: "break-word",
+                          }}>{row.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <p style={{
+                fontFamily: "'Outfit', sans-serif", fontSize: "12px", color: C.textMid,
+                lineHeight: 1.6, margin: "14px 0 0", textAlign: "center",
+              }}>
+                Please email proof of payment to <strong style={{ color: C.navy }}>info@atlascg.co.za</strong>
+              </p>
+            </div>
           </div>
         </Card>
       </div>
@@ -471,7 +541,7 @@ function TeamReg({ onSubmit }) {
             Autumn Bowl · Team Registration
           </h1>
           <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "14px", color: C.textLight }}>
-            Adult Mixed Division · R2,650 per team
+            Adult Mixed Division · R3,000 registration fee
           </p>
         </div>
 
@@ -509,8 +579,8 @@ function TeamReg({ onSubmit }) {
               padding: "16px 20px", borderRadius: "10px", margin: "20px 0",
               background: `${C.green}06`, border: `1px solid ${C.green}15`,
             }}>
-              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", fontWeight: 600, color: C.textMid }}>Autumn Bowl Entry Fee</span>
-              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "24px", fontWeight: 800, color: C.green }}>R2,650</span>
+              <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "13px", fontWeight: 600, color: C.textMid }}>Registration Fee</span>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "24px", fontWeight: 800, color: C.green }}>R3,000</span>
             </div>
 
             <Button variant="primary" onClick={submit} style={{ width: "100%", padding: "16px", fontSize: "15px" }}>
@@ -813,7 +883,7 @@ function Admin({ teams, players }) {
             { label: "Teams", value: teams.length, color: C.green },
             { label: "Players", value: players.length, color: C.gold },
             { label: "Pending", value: teams.filter(t => t.status === "Pending Payment").length, color: C.red },
-            { label: "Revenue", value: `R${(teams.length * 2650).toLocaleString()}`, color: C.navy },
+            { label: "Revenue", value: `R${(teams.length * 3000).toLocaleString()}`, color: C.navy },
           ].map((st, i) => (
             <Card key={i} style={{ padding: "22px" }}>
               <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: "11px", color: C.textFaint, textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>{st.label}</div>
