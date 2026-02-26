@@ -626,11 +626,11 @@ function PlayerReg({ onSubmit, teams }) {
     r.readAsDataURL(file);
   };
 
-  const submit = () => {
+  const submit = async () => {
     const errors = validatePlayerForm(f, photo);
     if (errors.length > 0) return alert(errors.join('\n'));
     const sanitized = sanitizeObject(f);
-    onSubmit({ ...sanitized, photo, age: age(f.dob), id: Date.now(), status: "Registered", date: new Date().toISOString() });
+    await onSubmit({ ...sanitized, photo, age: age(f.dob), status: "Registered", date: new Date().toISOString() });
     setSubmitted(true);
   };
 
@@ -1009,13 +1009,14 @@ export default function App() {
     const { terms, ...teamData } = t;
     try {
       const { data, error } = await supabase.from('teams').insert([teamData]).select();
-      if (error) { alert("Registration failed. Please try again."); return null; }
+      if (error) { console.error("Team registration error:", error); alert(`Registration failed: ${error.message}`); return null; }
       if (data) {
         setTeams(p => [...p, data[0]]);
-        return data[0]; // Return the record so TeamReg gets the database UUID
+        return data[0];
       }
-    } catch {
-      alert("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Team registration exception:", err);
+      alert(`Something went wrong: ${err.message || "Please try again."}`);
     }
     return null;
   };
@@ -1025,10 +1026,11 @@ export default function App() {
     const { terms, ...playerData } = p;
     try {
       const { data, error } = await supabase.from('players').insert([playerData]).select();
-      if (error) { alert("Registration failed. Please try again."); return; }
+      if (error) { console.error("Player registration error:", error); alert(`Registration failed: ${error.message}`); return; }
       if (data) setPlayers(prev => [...prev, data[0]]);
-    } catch {
-      alert("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Player registration exception:", err);
+      alert(`Something went wrong: ${err.message || "Please try again."}`);
     }
   };
 
