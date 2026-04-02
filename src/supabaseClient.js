@@ -8,7 +8,7 @@ export const supabaseMissing = !supabaseUrl || !supabaseKey
 // Create a real client or a no-op placeholder so the app always renders
 export const supabase = supabaseMissing
   ? createNoopClient()
-  : createClient(supabaseUrl, supabaseKey)
+  : createClient(supabaseUrl, supabaseKey, { db: { schema: 'ffsa' } })
 
 function createNoopClient() {
   console.warn('Missing Supabase environment variables. Running in offline mode.')
