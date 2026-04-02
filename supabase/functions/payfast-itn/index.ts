@@ -153,7 +153,9 @@ Deno.serve(async (req: Request) => {
       // Update team status in database using service role key
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+        db: { schema: "ffsa" },
+      });
 
       const { error } = await supabase
         .from("teams")
